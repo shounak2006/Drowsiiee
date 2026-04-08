@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Logs — DrowseeAI{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h2 class="page-title">Session Logs</h2>
+    <p class="page-sub">Timestamped detection events for review and export</p>
+  </div>
+  <div class="control-bar">
+    <input id="log-search" class="search-input" type="text" placeholder="Filter logs..." oninput="filterLogs()" />
+    <button class="btn btn-ghost" onclick="loadLogs()">Refresh</button>
+    <a class="btn btn-ghost" href="/api/download_logs">Export JSON</a>
+  </div>
+</div>
+
+<div class="metric-grid four-col" style="margin-bottom:1.25rem;">
+  <div class="metric-card">
+    <div class="metric-label">Total Entries</div>
+    <div class="metric-value" id="log-count">--</div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-label">SAFE Events</div>
+    <div class="metric-value safe" id="log-safe">--</div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-label">WARNING Events</div>
+    <div class="metric-value warning" id="log-warn">--</div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-label">CRITICAL Events</div>
+    <div class="metric-value critical" id="log-crit">--</div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <span>Event Log</span>
+    <span class="badge badge-info" id="log-badge">-- entries</span>
+  </div>
+  <div class="table-wrapper">
+    <table class="data-table" id="log-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Timestamp</th>
+          <th>EAR</th>
+          <th>Fatigue Score</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="log-tbody">
+        <tr><td colspan="5" class="table-empty">No logs yet. Start monitoring to generate data.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/logs.js') }}"></script>
+{% endblock %}

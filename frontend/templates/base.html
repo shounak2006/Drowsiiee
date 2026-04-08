@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}DrowseeAI{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  {% block head %}{% endblock %}
+</head>
+<body>
+
+  <nav class="navbar">
+    <a class="navbar-brand" href="/">
+      <span class="brand-dot"></span>
+      DrowseeAI
+    </a>
+    <ul class="navbar-links">
+      <li><a href="/" class="{% if request.path == '/' %}active{% endif %}">Home</a></li>
+      <li><a href="/dashboard" class="{% if request.path == '/dashboard' %}active{% endif %}">Dashboard</a></li>
+      <li><a href="/analytics" class="{% if request.path == '/analytics' %}active{% endif %}">Analytics</a></li>
+      <li><a href="/logs" class="{% if request.path == '/logs' %}active{% endif %}">Logs</a></li>
+      <li><a href="/about" class="{% if request.path == '/about' %}active{% endif %}">About</a></li>
+    </ul>
+    <div id="nav-status" class="nav-status-badge idle">IDLE</div>
+  </nav>
+
+  <main class="main-content">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="footer">
+    <span>DrowseeAI &mdash; Real-Time Driver Drowsiness Detection</span>
+    <span id="footer-time"></span>
+  </footer>
+
+  <script>
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('footer-time').textContent =
+        now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    async function pollNavStatus() {
+      try {
+        const r = await fetch('/api/metrics');
+        const d = await r.json();
+        const badge = document.getElementById('nav-status');
+        const labels = { safe: 'SAFE', warning: 'WARNING', critical: 'CRITICAL', idle: 'IDLE' };
+        badge.textContent = labels[d.status_state] || 'IDLE';
+        badge.className = 'nav-status-badge ' + (d.status_state || 'idle');
+      } catch {}
+    }
+    setInterval(pollNavStatus, 1500);
+    pollNavStatus();
+  </script>
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>

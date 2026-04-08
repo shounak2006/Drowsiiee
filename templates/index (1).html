@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}DrowseeAI — Driver Safety Monitor{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-tag">Real-Time Detection System</div>
+    <h1 class="hero-title">Driver Drowsiness<br /><span class="accent">Monitoring Platform</span></h1>
+    <p class="hero-sub">
+      Computer vision-powered fatigue detection using MediaPipe Face Mesh and Eye Aspect Ratio analysis.
+      Designed for real-time operation on standard hardware — no GPU required.
+    </p>
+    <div class="hero-actions">
+      <a href="/dashboard" class="btn btn-primary">Launch Dashboard</a>
+      <a href="/analytics" class="btn btn-ghost">View Analytics</a>
+      <a href="/about" class="btn btn-ghost">About Project</a>
+    </div>
+  </div>
+</section>
+
+<section class="features">
+  <div class="section-label">Core Capabilities</div>
+  <div class="feature-grid">
+    <div class="feature-card">
+      <div class="feature-icon">◎</div>
+      <h3>Eye Aspect Ratio</h3>
+      <p>Soukupová &amp; Čech (2016) EAR formula applied across six MediaPipe facial landmarks per eye. Threshold-based closure detection at 0.25.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">⧖</div>
+      <h3>Fatigue Scoring</h3>
+      <p>Rolling fatigue score (0–100) that rises with eye closure and excessive blinking, and decays when the driver is alert. States: SAFE / WARNING / CRITICAL.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">◈</div>
+      <h3>Face Mesh Tracking</h3>
+      <p>MediaPipe FaceMesh with 468 landmarks. Precise eye contour rendering, blink detection, and head pose resilience at 30 fps on CPU.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">▲</div>
+      <h3>Instant Alerts</h3>
+      <p>Audio alarm triggered on 2-second eye closure or critical fatigue threshold. Visual HUD overlay on the live video stream.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">◱</div>
+      <h3>Live Dashboard</h3>
+      <p>Real-time metric cards, rolling Chart.js fatigue graph, closure duration, and blink rate — all updating at 500ms intervals.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">◬</div>
+      <h3>Session Analytics</h3>
+      <p>Per-hour fatigue aggregation, trend detection, and downloadable JSON logs for post-session review or academic reporting.</p>
+    </div>
+  </div>
+</section>
+
+<section class="stack-strip">
+  <div class="stack-label">Built With</div>
+  <div class="stack-tags">
+    <span class="tag">Python</span>
+    <span class="tag">MediaPipe</span>
+    <span class="tag">OpenCV</span>
+    <span class="tag">Flask</span>
+    <span class="tag">Chart.js</span>
+    <span class="tag">NumPy</span>
+    <span class="tag">Threading</span>
+    <span class="tag">MJPEG Streaming</span>
+  </div>
+</section>
+
+<section class="metrics-preview">
+  <div class="section-label">Live System Snapshot</div>
+  <div class="metrics-preview-grid">
+    <div class="preview-card">
+      <div class="preview-label">EAR (avg)</div>
+      <div class="preview-val" id="prev-ear">--</div>
+    </div>
+    <div class="preview-card">
+      <div class="preview-label">Fatigue Score</div>
+      <div class="preview-val" id="prev-fat">--</div>
+    </div>
+    <div class="preview-card">
+      <div class="preview-label">Status</div>
+      <div class="preview-val status-text" id="prev-status">IDLE</div>
+    </div>
+    <div class="preview-card">
+      <div class="preview-label">Blink Rate / min</div>
+      <div class="preview-val" id="prev-blink">--</div>
+    </div>
+  </div>
+  <div style="text-align:center;margin-top:1.5rem;">
+    <a href="/dashboard" class="btn btn-primary">Open Full Dashboard &rarr;</a>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function previewPoll() {
+  try {
+    const r = await fetch('/api/metrics');
+    const d = await r.json();
+    document.getElementById('prev-ear').textContent   = d.camera_active ? d.avg_ear.toFixed(3) : '--';
+    document.getElementById('prev-fat').textContent   = d.camera_active ? d.fatigue_score.toFixed(1) : '--';
+    const s = document.getElementById('prev-status');
+    s.textContent = d.status || 'IDLE';
+    s.className   = 'preview-val status-text ' + (d.status_state || 'idle');
+    document.getElementById('prev-blink').textContent = d.camera_active ? d.blink_rate.toFixed(1) : '--';
+  } catch {}
+}
+setInterval(previewPoll, 1000);
+previewPoll();
+</script>
+{% endblock %}

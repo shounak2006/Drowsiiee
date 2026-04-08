@@ -1,0 +1,6 @@
+venv310/
+__pycache__/
+node_modules/
+react-ui/node_modules/
+data/
+*.pyc

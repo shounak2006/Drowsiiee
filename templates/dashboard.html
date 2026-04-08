@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — DrowseeAI{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h2 class="page-title">Live Monitoring Dashboard</h2>
+    <p class="page-sub">Real-time feed, metrics, and fatigue tracking</p>
+  </div>
+  <div class="control-bar">
+    <button class="btn btn-success" id="btn-start" onclick="apiCall('/api/start')">Start</button>
+    <button class="btn btn-danger"  id="btn-stop"  onclick="apiCall('/api/stop')">Stop</button>
+    <button class="btn btn-ghost"   id="btn-pause" onclick="togglePause()">Pause</button>
+    <button class="btn btn-ghost"   id="btn-reset" onclick="apiCall('/api/reset')">Reset</button>
+    <a class="btn btn-ghost" href="/api/download_logs">Download Logs</a>
+  </div>
+</div>
+
+<div id="alert-banner" class="alert-banner hidden"></div>
+
+<div class="metric-grid">
+  <div class="metric-card">
+    <div class="metric-label">EAR (Left)</div>
+    <div class="metric-value" id="m-ear">--</div>
+    <div class="metric-sub">Eye Aspect Ratio</div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-label">EAR (Avg)</div>
+    <div class="metric-value" id="m-avg-ear">--</div>
+    <div class="metric-sub">Both eyes</div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-label">Fatigue Score</div>
+    <div class="metric-value" id="m-fatigue">--</div>
+    <div class="metric-sub">0 – 100</div>
+  </div>
+  <div class="metric-card status-card">
+    <div class="metric-label">Status</div>
+    <div class="metric-value status-text" id="m-status">IDLE</div>
+    <div class="metric-sub" id="m-trend">Trend: --</div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-label">Closure Duration</div>
+    <div class="metric-value" id="m-closure">--</div>
+    <div class="metric-sub">seconds</div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-label">Blink Rate</div>
+    <div class="metric-value" id="m-blink">--</div>
+    <div class="metric-sub">per minute</div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-label">Session Time</div>
+    <div class="metric-value mono" id="m-session">00:00:00</div>
+    <div class="metric-sub">hh:mm:ss</div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-label">FPS</div>
+    <div class="metric-value" id="m-fps">--</div>
+    <div class="metric-sub">frames/sec</div>
+  </div>
+</div>
+
+<div class="dashboard-main">
+  <div class="card video-card">
+    <div class="card-header">
+      <span>Live Feed</span>
+      <span id="camera-badge" class="badge badge-idle">OFFLINE</span>
+    </div>
+    <div class="video-wrapper">
+      <img id="video-feed" src="/video_feed" alt="Camera feed" />
+      <div id="video-offline" class="video-offline">
+        <div class="offline-icon">⊘</div>
+        <div>Camera not active</div>
+        <div class="offline-hint">Press <strong>Start</strong> to begin monitoring</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card chart-card">
+    <div class="card-header">
+      <span>Live Fatigue Graph</span>
+      <span class="badge badge-info">Rolling 60s</span>
+    </div>
+    <div class="chart-wrapper">
+      <canvas id="fatigueChart"></canvas>
+    </div>
+    <div class="alerts-panel">
+      <div class="alerts-title">System Alerts</div>
+      <ul id="alerts-list" class="alerts-list">
+        <li class="alert-item info">System initialised — press Start to begin.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}
