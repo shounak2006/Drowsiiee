@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block title %}About — DrowseeAI{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h2 class="page-title">About the Project</h2>
+    <p class="page-sub">Architecture, methodology, and research context</p>
+  </div>
+</div>
+
+<div class="about-layout">
+  <div class="about-main">
+    <div class="card">
+      <div class="card-header">Project Overview</div>
+      <div class="about-body">
+        <p>
+          DrowseeAI is a real-time driver drowsiness detection system that runs entirely on CPU.
+          It uses Google's MediaPipe Face Mesh to extract precise facial landmarks per frame,
+          computes the Eye Aspect Ratio (EAR) from six points around each eye, and feeds those values
+          into a temporal fatigue model to classify the driver's alertness state.
+        </p>
+        <p>
+          The system is designed to be lightweight, interpretable, and deployable on standard laptops —
+          no GPU, no cloud inference, no proprietary hardware required.
+          Typical performance is 25–35 fps on modern consumer hardware.
+        </p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">System Architecture</div>
+      <div class="arch-diagram">
+        <div class="arch-row">
+          <div class="arch-box source">Webcam</div>
+          <div class="arch-arrow">→</div>
+          <div class="arch-box proc">OpenCV Frame Capture</div>
+          <div class="arch-arrow">→</div>
+          <div class="arch-box proc">MediaPipe Face Mesh</div>
+        </div>
+        <div class="arch-row">
+          <div class="arch-box proc">Eye Landmark Extraction</div>
+          <div class="arch-arrow">→</div>
+          <div class="arch-box proc">EAR Calculation</div>
+          <div class="arch-arrow">→</div>
+          <div class="arch-box proc">Fatigue Scoring</div>
+        </div>
+        <div class="arch-row">
+          <div class="arch-box state safe">SAFE</div>
+          <div class="arch-box state warning">WARNING</div>
+          <div class="arch-box state critical">CRITICAL + Alarm</div>
+        </div>
+        <div class="arch-row">
+          <div class="arch-box out">Flask API</div>
+          <div class="arch-arrow">→</div>
+          <div class="arch-box out">Web Dashboard (this)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">EAR Methodology</div>
+      <div class="about-body">
+        <p>Based on <em>Real-Time Eye Blink Detection Using Facial Landmarks</em> (Soukupová &amp; Čech, 2016).</p>
+        <div class="formula-block">
+          EAR = (‖p2 − p6‖ + ‖p3 − p5‖) / (2 × ‖p1 − p4‖)
+        </div>
+        <ul class="about-list">
+          <li><strong>p1, p4</strong> — horizontal eye corners</li>
+          <li><strong>p2, p3</strong> — upper eyelid reference points</li>
+          <li><strong>p5, p6</strong> — lower eyelid reference points</li>
+          <li>Open eye typical range: <strong>0.28 – 0.38</strong></li>
+          <li>Detection threshold: <strong>EAR &lt; 0.25</strong></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">Known Limitations</div>
+      <div class="about-body">
+        <ul class="about-list">
+          <li>EAR accuracy degrades in poor or uneven lighting conditions.</li>
+          <li>Heavy-framed glasses may partially occlude landmarks and reduce accuracy.</li>
+          <li>Extreme head poses (&gt; 45° yaw) cause landmark instability.</li>
+          <li>Detection is per-eye landmark only — no gaze direction inference.</li>
+          <li>Single-driver assumption; multi-occupant scenes are not supported.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="about-side">
+    <div class="card">
+      <div class="card-header">Technology Stack</div>
+      <table class="about-table">
+        <tr><td>Detection</td><td><span class="tag sm">MediaPipe 0.10+</span></td></tr>
+        <tr><td>Video</td><td><span class="tag sm">OpenCV 4.8+</span></td></tr>
+        <tr><td>Numerics</td><td><span class="tag sm">NumPy 1.24+</span></td></tr>
+        <tr><td>Server</td><td><span class="tag sm">Flask 3.x</span></td></tr>
+        <tr><td>Streaming</td><td><span class="tag sm">MJPEG / HTTP</span></td></tr>
+        <tr><td>Charts</td><td><span class="tag sm">Chart.js 4.4</span></td></tr>
+        <tr><td>Language</td><td><span class="tag sm">Python 3.9 – 3.12</span></td></tr>
+        <tr><td>Threading</td><td><span class="tag sm">stdlib threading</span></td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-header">Fatigue Score Model</div>
+      <table class="about-table">
+        <tr><th>Condition</th><th>Effect</th></tr>
+        <tr><td>Eyes closed</td><td>+12 pts / sec</td></tr>
+        <tr><td>High blink rate</td><td>+3 pts / excess blink</td></tr>
+        <tr><td>Eyes open</td><td>−4 pts / sec</td></tr>
+        <tr><td>Score &ge; 35</td><td>&rarr; WARNING</td></tr>
+        <tr><td>Score &ge; 65</td><td>&rarr; CRITICAL</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-header">Future Improvements</div>
+      <ul class="about-list spaced" style="padding:0.9rem 1rem;">
+        <li>CNN-based eye classifier (MRL / CEW dataset) for glasses robustness.</li>
+        <li>Head pose estimation to detect microsleep nodding.</li>
+        <li>YAWN detection via mouth aspect ratio (MAR).</li>
+        <li>Persistent database backend for cross-session analytics.</li>
+        <li>Mobile companion app with BLE alarm relay.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}

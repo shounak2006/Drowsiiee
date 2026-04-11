@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Analytics — DrowseeAI{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h2 class="page-title">Session Analytics</h2>
+    <p class="page-sub">Hourly fatigue breakdown and trend observations</p>
+  </div>
+  <button class="btn btn-ghost" onclick="loadAnalytics()">Refresh</button>
+</div>
+
+<div class="metric-grid four-col">
+  <div class="metric-card">
+    <div class="metric-label">Most Fatigued Hour</div>
+    <div class="metric-value accent mono" id="an-fatigued-hour">--</div>
+    <div class="metric-sub">highest avg fatigue</div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-label">Most Alert Hour</div>
+    <div class="metric-value mono" id="an-alert-hour">--</div>
+    <div class="metric-sub">lowest avg fatigue</div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-label">Hours Tracked</div>
+    <div class="metric-value" id="an-hours-tracked">--</div>
+    <div class="metric-sub">distinct hours in session</div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-label">Avg Fatigue (session)</div>
+    <div class="metric-value" id="an-avg-fatigue">--</div>
+    <div class="metric-sub">across all entries</div>
+  </div>
+</div>
+
+<div class="analytics-row">
+  <div class="card chart-card-wide">
+    <div class="card-header">
+      <span>Average Fatigue by Hour</span>
+      <span class="badge badge-info">Hourly</span>
+    </div>
+    <div class="chart-wrapper">
+      <canvas id="hourlyChart"></canvas>
+    </div>
+  </div>
+  <div class="card chart-card-narrow">
+    <div class="card-header">
+      <span>Fatigue Distribution</span>
+    </div>
+    <div class="chart-wrapper">
+      <canvas id="distChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">Trend Observations</div>
+  <ul id="trend-obs" class="obs-list">
+    <li class="obs-item">Awaiting data...</li>
+  </ul>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/analytics.js') }}"></script>
+{% endblock %}
